@@ -1,12 +1,17 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+  Schema = mongoose.Schema;
 
 var NoteSchema = new Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  title: String,
+  note: String,
+  active: Boolean,
+  published: Boolean,
+  userId: String,
+  createdOn: Date,
+  updatedOn: Date,
+  publishedOn : Date
 });
 
 module.exports = mongoose.model('Note', NoteSchema);
