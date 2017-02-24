@@ -13,51 +13,66 @@ var _ = require('lodash');
 var Notes = require('./note.model');
 
 // Get list of notes
-exports.index = function(req, res) {
+exports.index = function (req, res) {
   Notes.find(function (err, notes) {
-    if(err) { return handleError(res, err); }
+    if (err) { return handleError(res, err); }
     return res.status(200).json(notes);
   });
 };
 
 // Get a single Notes
-exports.show = function(req, res) {
+exports.show = function (req, res) {
   Notes.findById(req.params.id, function (err, note) {
-    if(err) { return handleError(res, err); }
-    if(!note) { return res.status(404).send('Not Found'); }
+    if (err) { return handleError(res, err); }
+    if (!note) { return res.status(404).send('Not Found'); }
     return res.json(note);
   });
 };
 
 // Creates a new note in the DB.
-exports.create = function(req, res) {
-  Notes.create(req.body, function(err, note) {
-    if(err) { return handleError(res, err); }
+exports.create = function (req, res) {
+  let note = req.body;
+  note.active = true;
+  note.published = false;
+  note.userId = null;
+  note.createdOn = new Date();
+  note.updatedOn = new Date();
+  note.publishedOn = null;
+
+  Notes.create(req.body, function (err, note) {
+    if (err) { return handleError(res, err); }
     return res.status(201).json(note);
   });
 };
 
 // Updates an existing note in the DB.
-exports.update = function(req, res) {
-  if(req.body._id) { delete req.body._id; }
-  Notes.findById(req.params.id, function (err, note) {
+exports.update = function (req, res) {
+  let note = req.body;
+  if (note._id) { delete note._id; }
+  Notes.findById(req.params.id, function (err, dbnote) {
     if (err) { return handleError(res, err); }
-    if(!note) { return res.status(404).send('Not Found'); }
-    var updated = _.merge(note, req.body);
+    if (!dbnote || dbnote.published) { return res.status(404).send('Not Found'); }
+
+    // Updates
+    note.updatedOn = new Date();
+    if (note.published)
+      note.publishedOn = new Date();
+
+    var updated = _.merge(dbnote, note);
     updated.save(function (err) {
       if (err) { return handleError(res, err); }
-      return res.status(200).json(note);
+      return res.status(200).json(dbnote);
     });
   });
 };
 
 // Deletes a note from the DB.
-exports.destroy = function(req, res) {
+exports.destroy = function (req, res) {
   Notes.findById(req.params.id, function (err, note) {
-    if(err) { return handleError(res, err); }
-    if(!note) { return res.status(404).send('Not Found'); }
-    note.remove(function(err) {
-      if(err) { return handleError(res, err); }
+    if (err) { return handleError(res, err); }
+    if (!note) { return res.status(404).send('Not Found'); }
+    note.remove(function (err) {
+      if (err) { return handleError(res, err); }
       return res.status(204).send('No Content');
     });
   });
