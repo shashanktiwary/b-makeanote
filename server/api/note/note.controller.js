@@ -39,7 +39,7 @@ exports.create = function (req, res) {
   note.updatedOn = new Date();
   note.publishedOn = null;
 
-  Notes.create(req.body, function (err, note) {
+  Notes.create(note, function (err, note) {
     if (err) { return handleError(res, err); }
     return res.status(201).json(note);
   });
