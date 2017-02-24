@@ -7,6 +7,6 @@ module.exports = {
   mongo: {
     uri: 'mongodb://localhost/makeanote-dev'
   },
-
+  port: 9002,
   seedDB: true
 };

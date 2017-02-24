@@ -9,9 +9,9 @@ var NoteSchema = new Schema({
   active: Boolean,
   published: Boolean,
   userId: String,
-  createdOn: Date,
-  updatedOn: Date,
-  publishedOn : Date
+  createdOn: Schema.Types.Date,
+  updatedOn: Schema.Types.Date,
+  publishedOn: Schema.Types.Date
 });
 
 module.exports = mongoose.model('Note', NoteSchema);
