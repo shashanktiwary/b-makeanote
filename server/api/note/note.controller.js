@@ -14,7 +14,13 @@ var Notes = require('./note.model');
 
 // Get list of notes
 exports.index = function (req, res) {
-  Notes.find({ userId: req.user._id }, function (err, notes) {
+
+  var query = { userId: req.user._id, active: true };
+
+  if (req.query.published)
+    query.published = req.query.published;
+
+  Notes.find(query, function (err, notes) {
     if (err) { return handleError(res, err); }
     return res.status(200).json(notes);
   });
@@ -24,7 +30,7 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   Notes.findById(req.params.id, function (err, note) {
     if (err) { return handleError(res, err); }
-    if (!note || note.userId !== req.user._id) { return res.status(404).send('Not Found'); }
+    if (!note || !req.user._id.equals(note.userId)) { return res.status(404).send('Not Found'); }
     return res.json(note);
   });
 };
@@ -52,7 +58,7 @@ exports.update = function (req, res) {
   if (note._id) { delete note._id; }
   Notes.findById(req.params.id, function (err, dbnote) {
     if (err) { return handleError(res, err); }
-    if (!dbnote || dbnote.published || dbnote.userId !== req.user._id) { return res.status(404).send('Not Found'); }
+    if (!dbnote || !req.user._id.equals(dbnote.userId)) { return res.status(404).send('Not Found'); }
 
     // Updates
     note.updatedOn = new Date();
